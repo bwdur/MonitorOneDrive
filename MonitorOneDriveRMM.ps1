@@ -295,12 +295,13 @@ if(Test-Path $dll_path){
         Get-ODStatus | convertto-json | out-file 'C:\programdata\Microsoft OneDrive\OneDriveLogging.txt'
     }
     [murrayju.ProcessExtensions.ProcessExtensions]::StartProcessAsCurrentUser("C:\Windows\System32\WindowsPowershell\v1.0\Powershell.exe", "-command $($scriptblock)","C:\Windows\System32\WindowsPowershell\v1.0\",$false)
-    
+    $user = Get-WMIObject -class Win32_ComputerSystem | Select-Object  username
     start-sleep 5
+    if($user.username){
         if(Test-Path $results_path){
-        $results = (get-content $results_path | convertfrom-json).value
+            $results = (get-content $results_path | convertfrom-json).value
             foreach ($result in $results) {
-                if($result.StatusString -notin $good_results){
+                if($result.StatusString -notin $good_results -and $result.ServiceType -eq "Business1"){
                     $error_message = "OneDrive is having trouble syncing.  `n  Status: " + $result.StatusString + "`n  Username: " + $result.UserName + "`n  Service Type: " + $result.ServiceType
                     Write-EventLog -Source $event_source -LogName "Application" -EventID $event_id_failed -EntryType Error -Message $error_message
                 }
@@ -311,8 +312,9 @@ if(Test-Path $dll_path){
             }
         }
         else{
-            Write-EventLog -Source $event_source -LogName "Application" -EventID $event_id_scriptfailed  -EntryType Error -Message "OneDriveStatus failed to check the status of OneDrive.  See $doc_url for more info."
+            Write-EventLog -Source $event_source -LogName "Application" -EventID $event_id_scriptfailed  -EntryType Error -Message "OneDriveStatus failed to check the status of OneDrive.  See $doc_url for more info. $user"
         }
+    }
 }
 else{
     Write-EventLog -Source $event_source -LogName "Application" -EventID $event_id_scriptfailed -EntryType Error -Message "OneDriveLib.dll is not installed on this computer and it was unable to be downloaded from $dll_url. See $doc_url for more info."
