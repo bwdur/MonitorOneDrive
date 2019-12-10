@@ -271,7 +271,7 @@ namespace murrayju.ProcessExtensions
 
 $path = 'C:\programdata\Microsoft OneDrive'
 $dll_path = 'C:\programdata\Microsoft OneDrive\OneDriveLib.dll'
-$good_results = "UpToDate", "Syncing", "SharedSync"
+$good_results = "UpToDate", "Syncing", "SharedSync", "OnDemandOrUnknown"
 $event_source = "OneDriveStatus"
 $event_id_failed = 7777
 $event_id_scriptfailed = 6666
